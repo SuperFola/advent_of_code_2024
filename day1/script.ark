@@ -1,0 +1,23 @@
+(import std.Math :abs)
+(import std.List :map :forEach :zip)
+(import std.String :split)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let lists (map lines (fun (el) (split el "   "))))
+(let left (map lists (fun (el) (toNumber (@ el 0)))))
+(let right (map lists (fun (el) (toNumber (@ el 1)))))
+
+(let left_sort (list:sort left))
+(let right_sort (list:sort right))
+
+(mut total 0)
+(forEach
+  (zip left_sort right_sort)
+  (fun (el) {
+    (let lhs (@ el 0))
+    (let rhs (@ el 1))
+
+    (set total (+ total (abs (- rhs lhs))))
+  }))
+(print total)
