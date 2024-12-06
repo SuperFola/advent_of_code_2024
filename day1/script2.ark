@@ -1,0 +1,23 @@
+(import std.Math :abs)
+(import std.List :map :forEach :countIf)
+(import std.String :split)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let lists (map lines (fun (el) (split el "   "))))
+(let left (map lists (fun (el) (toNumber (@ el 0)))))
+(let right (map lists (fun (el) (toNumber (@ el 1)))))
+
+(let left_sort (list:sort left))
+(let right_sort (list:sort right))
+
+(mut total 0)
+(forEach
+  left_sort
+  (fun (el) {
+    (let count (countIf right_sort (fun (x) (= x el))))
+
+    (set total (+ total (* el count)))
+  }))
+(print total)
+
