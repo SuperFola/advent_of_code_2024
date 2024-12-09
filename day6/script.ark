@@ -1,0 +1,64 @@
+(import std.String :split :join)
+(import std.List :forEach)
+(import std.Switch:*)
+
+(let file (io:readFile "input.txt"))
+(mut lines (split file "\n"))
+(let height (len lines))
+(let width (len (head lines)))
+
+(mut y 0)
+(mut x nil)
+
+(while (nil? x) {
+    (let pos (string:find (@ lines y) "^"))
+    (if (!= -1 pos)
+        (set x pos)
+        (set y (+ y 1))) })
+
+# 0 -> top
+# 1 -> right
+# 2 -> bottom
+# 3 -> left
+(mut direction 0)
+(mut count 1)
+
+(let get (fun (x y)
+    (if (and (>= x 0) (>= y 0) (< x width) (< y height))
+        (@ (@ lines y) x)
+        nil)))
+(let wall? (fun (x y)
+    (= "#" (get x y))))
+(let turn_right (fun ()
+    (set direction (mod (+ 1 direction) 4))))
+(let walk (fun (nx ny update) {
+    (set x nx)
+    (set y ny)
+    (if update
+        (set count (+ 1 count))) }))
+
+(mut continue true)
+(while continue {
+    (let line (@ lines y))
+    (set lines (list:setAt lines y (string:setAt line x "X")))
+
+    (mut nx x)
+    (mut ny y)
+    (switch direction
+        0 (set ny (- ny 1))
+        1 (set nx (+ 1 nx))
+        2 (set ny (+ 1 ny))
+        3 (set nx (- nx 1)))
+
+    (let tile (get nx ny))
+
+    (switch tile
+        "#" (turn_right)
+        "." (walk nx ny true)
+        "X" (walk nx ny false)
+        nil (set continue false)) })
+
+(print count)
+
+(let modified (join lines "\n"))
+(io:writeFile "updated.txt" modified)

@@ -1,0 +1,111 @@
+(import std.String :split)
+(import std.List :forEach)
+(import std.Switch:*)
+
+(let file (io:readFile "input.txt"))
+(mut lines (split file "\n"))
+(let original_lines lines)
+(let height (len lines))
+(let width (len (head lines)))
+
+(mut y 0)
+(mut x nil)
+
+(while (nil? x) {
+    (let pos (string:find (@ lines y) "^"))
+    (if (!= -1 pos)
+        (set x pos)
+        (set y (+ y 1))) })
+
+(let og_x x)
+(let og_y y)
+
+(let get (fun (x y lines)
+    (if (and (>= x 0) (>= y 0) (< x width) (< y height))
+        (@ (@ lines y) x)
+        nil)))
+
+(let test (fun () {
+    # 0 -> top
+    # 1 -> right
+    # 2 -> bottom
+    # 3 -> left
+    (mut direction 0)
+    (mut dir_to_str ["0" "1" "2" "3"])
+
+    (let turn_right (fun ()
+        (set direction (mod (+ 1 direction) 4))))
+    (let walk (fun (nx ny) {
+        (set x nx)
+        (set y ny) }))
+
+    (mut continue true)
+    (mut is_loop false)
+    (let start (time))
+    (while continue {
+        (if (> (- (time) start) 4)
+            {
+                (set is_loop true)
+                (set continue false)
+            })
+
+        (let line (@ lines y))
+        (set lines (list:setAt lines y (string:setAt line x (@ dir_to_str direction))))
+
+        (mut nx x)
+        (mut ny y)
+        (switch direction
+            0 (set ny (- ny 1))
+            1 (set nx (+ 1 nx))
+            2 (set ny (+ 1 ny))
+            3 (set nx (- nx 1)))
+
+        (let tile (get nx ny lines))
+        (if (= tile (@ dir_to_str direction))
+            {
+                (set is_loop true)
+                (set continue false)
+            })
+
+        (switch tile
+            "#" (turn_right)
+            "." (walk nx ny)
+            "0" (walk nx ny)
+            "1" (walk nx ny)
+            "2" (walk nx ny)
+            "3" (walk nx ny)
+            nil (set continue false)) })
+    is_loop
+}))
+
+(let f2 (io:readFile "updated.txt"))
+(let path (split f2 "\n"))
+
+(mut obs_x 0)
+(mut obs_y 0)
+(mut count 0)
+(while (and (< obs_x width) (< obs_y height)) {
+    (print (string:format "{}:{} - {}" obs_x obs_y count))
+
+    (if (and (= "X" (get obs_x obs_y path))
+             (and (!= obs_x x) (!= obs_y y))
+             (and (!= obs_x 87) (!= obs_y 44)))
+        {
+            (set lines (list:setAt lines obs_y (string:setAt (@ lines obs_y) obs_x "#")))
+            (if (test)
+                (set count (+ 1 count)))
+
+            (set x og_x)
+            (set y og_y)
+            (set lines original_lines)
+        })
+
+    (set obs_x (+ 1 obs_x))
+    (if (>= obs_x width)
+        {
+            (set obs_x 0)
+            (set obs_y (+ 1 obs_y))
+        })
+})
+
+(print count)
