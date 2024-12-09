@@ -6,14 +6,11 @@
 (let lines (split file "\n"))
 (let reports (map lines (fun (el) (map (split el " ") (fun (e) (toNumber e))))))
 
-(let safe (countIf
-    reports
-    (fun (report) {
+(let safe? (fun (report) {
         (mut direction 0) # -1 decrease, 1 increase, 0 unknown
-        (mut problems 0)
+        (mut is_safe true)
 
         (mut val (@ report 0))
-        (mut ignore_next false)
         (mut index 1)
 
         (while (< index (len report)) {
@@ -25,29 +22,45 @@
                 (set direction -1))
             (if (and (!= old_dir 0) (!= old_dir direction))
                 {
-                    (set problems (+ 1 problems))
-                    (set ignore_next true)
-                    (set direction old_dir)
+                    (set is_safe false)
+                    # stop the loop, unsafe
+                    (set index (len report))
                 }
                 {
                     # else, check increase/decrease
                     (let diff (abs (- current val)))
                     (if (or (= 0 diff) (> diff 3))
                         {
-                            (set problems (+ 1 problems))
-                            (set ignore_next true)
+                            (set is_safe false)
+                            (set index (len report))
                         })
                 })
 
-            (if (not ignore_next)
-                {
-                    (set val current)
-                    (set ignore_next false)
-                })
+            (set val current)
             (set index (+ 1 index))})
 
-        (<= problems 1)
+        is_safe
+    }))
+
+(let safe (countIf
+    reports
+    (fun (report) {
+        (mut ok (safe? report))
+        (if (not ok)
+            {
+                # mutate the report
+                (mut index 0)
+                (mut continue true)
+                (while (and continue (< index (len report))) {
+                    (if (safe? (pop report index))
+                        {
+                            (set continue false)
+                            (set ok true)
+                        })
+                    (set index (+ 1 index))
+                })
+            })
+        ok
     })))
 (print safe)
 
-# higher than 464
