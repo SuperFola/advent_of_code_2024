@@ -1,0 +1,47 @@
+(import std.List :forEach :takeWhile :dropWhile :drop)
+(import std.String :split :join :reverse)
+(import std.Switch:*)
+
+(let file (io:readFile "input.txt"))
+(let muls (split file "mul("))
+
+(mut total 0)
+(mut enabled (= -1 (string:find (head muls) "don't()")))
+
+(let is_num (fun (c) {
+    (let ord (string:ord c))
+    (and (>= ord 48) (<= ord 57)) }))
+
+(let last_do_dont (fun (seq) {
+    (let str (reverse (join seq "")))
+    (let do (string:find str ")(od"))
+    (let dont (string:find str ")(t'nod"))
+
+    (if (and (= -1 do) (= -1 dont))
+        nil
+        (if (and (= -1 do) (>= dont 0))
+            false
+            true))
+}))
+
+(forEach
+    muls
+    (fun (seq) {
+        (let a (join (takeWhile seq is_num) ""))
+        (set seq (dropWhile seq is_num))
+        (if (and (not (empty? a)) (= "," (head seq)))
+            {
+                (set seq (tail seq))
+                (let b (join (takeWhile seq is_num) ""))
+                (set seq (dropWhile seq is_num))
+                (if (and (not (empty? b)) (= ")" (head seq)) enabled)
+                    (set total (+ total (* (toNumber a) (toNumber b)))))
+            })
+        (print seq)
+        (let maybe_do (last_do_dont seq))
+        (if (not (nil? maybe_do))
+            (set enabled maybe_do))
+    }))
+
+(print total)
+
