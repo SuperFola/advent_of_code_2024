@@ -1,0 +1,30 @@
+(import std.List :forEach :takeWhile :dropWhile)
+(import std.String :split :join)
+(import std.Switch:*)
+
+(let file (io:readFile "input.txt"))
+(let muls (split file "mul("))
+
+(mut total 0)
+(mut text "")
+
+(let is_num (fun (c) {
+    (let ord (string:ord c))
+    (and (>= ord 48) (<= ord 57)) }))
+
+(forEach
+    muls
+    (fun (seq) {
+        (let a (join (takeWhile seq is_num) ""))
+        (set seq (dropWhile seq is_num))
+        (if (and (not (empty? a)) (= "," (head seq)))
+            {
+                (set seq (tail seq))
+                (let b (join (takeWhile seq is_num) ""))
+                (set seq (dropWhile seq is_num))
+                (if (and (not (empty? b)) (= ")" (head seq)))
+                    (set total (+ total (* (toNumber a) (toNumber b)))))
+            })
+    }))
+
+(print total)
