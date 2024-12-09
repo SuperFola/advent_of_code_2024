@@ -1,0 +1,59 @@
+(import std.String :split)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let height (len lines))
+(let width (len (head lines)))
+
+(let get (fun (x y)
+    (if (and (< x width) (< y height) (>= x 0) (>= y 0))
+        (@ (@ lines y) x)
+        nil)))
+
+(let search (fun (x y) {
+    (mut found 0)
+    # left to right
+    (if (and (= "M" (get (+ 1 x) y)) (= "A" (get (+ 2 x) y)) (= "S" (get (+ 3 x) y)))
+        (set found (+ 1 found)))
+    # top to bottom
+    (if (and (= "M" (get x (+ 1 y))) (= "A" (get x (+ 2 y))) (= "S" (get x (+ 3 y))))
+        (set found (+ 1 found)))
+    # right to left
+    (if (and (= "M" (get (- x 1) y)) (= "A" (get (- x 2) y)) (= "S" (get (- x 3) y)))
+        (set found (+ 1 found)))
+    # bottom to top
+    (if (and (= "M" (get x (- y 1))) (= "A" (get x (- y 2))) (= "S" (get x (- y 3))))
+        (set found (+ 1 found)))
+    # top left to bottom right
+    (if (and (= "M" (get (+ x 1) (+ y 1))) (= "A" (get (+ x 2) (+ y 2))) (= "S" (get (+ x 3) (+ y 3))))
+        (set found (+ 1 found)))
+    # top right to bottom left
+    (if (and (= "M" (get (- x 1) (+ y 1))) (= "A" (get (- x 2) (+ y 2))) (= "S" (get (- x 3) (+ y 3))))
+        (set found (+ 1 found)))
+    # bottom right to top left
+    (if (and (= "M" (get (- x 1) (- y 1))) (= "A" (get (- x 2) (- y 2))) (= "S" (get (- x 3) (- y 3))))
+        (set found (+ 1 found)))
+    # bottom left to top right
+    (if (and (= "M" (get (+ x 1) (- y 1))) (= "A" (get (+ x 2) (- y 2))) (= "S" (get (+ x 3) (- y 3))))
+        (set found (+ 1 found)))
+
+    found
+}))
+
+(mut count 0)
+
+(mut x 0)
+(mut y 0)
+(while (and (< x width) (< y height)) {
+    (if (= "X" (get x y))
+        (set count (+ count (search x y))))
+
+    (set x (+ 1 x))
+    (if (= width x)
+        {
+            (set x 0)
+            (set y (+ 1 y))
+        })
+})
+
+(print count)
