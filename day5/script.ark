@@ -1,0 +1,78 @@
+# from https://programming.dev/post/22486116/13749204 because I couldn't figure out how to apply the rules easily
+
+(import std.List :takeWhile :forEach :drop)
+(import std.String :split)
+
+
+($ measure (name code) {
+    (mut start (time))
+    { code }
+    (mut elapsed (- (time) start))
+    (print (string:format "{} {:.3f} seconds" name elapsed))
+})
+
+
+
+(measure "readFile" (let file (io:readFile "input.txt")))
+(measure "split" (let lines (split file "\n")))
+(measure "takeWhile" (let text-rules (takeWhile lines (fun (el) (not (empty? el))))))
+(measure "drop" (let updates (drop lines (+ 1 (len text-rules)))))
+
+(measure "rules" {
+  (mut rules (list:fill 100 []))
+  (forEach
+      text-rules
+      (fun (rule) {
+          (let splitted (split rule "|"))
+          (let before (toNumber (head splitted)))
+          (let after (@ splitted 1))
+
+          (mut ruleset (@ rules before))
+          (append! ruleset after)
+          (set rules (list:setAt rules before ruleset))
+      }))
+    })
+
+(mut middle_sum 0)
+(mut reordered_sum 0)
+(mut wrong_order false)
+
+(forEach
+    updates
+    (fun (update) {
+        (mut pages (split update ","))
+
+        (mut is_valid true)
+        (mut index (- (len pages) 1))  # start from the last element
+        (while (> index 0) {
+            (mut rule (@ rules (toNumber (@ pages index))))
+
+            (mut remaining 0)
+            (while (< remaining index) {
+                (if (!= -1 (list:find rule (@ pages remaining)))
+                    {
+                        # re-order the page
+                        (let element (@ pages remaining))
+                        (set pages (list:setAt pages remaining (@ pages index)))
+                        (set pages (list:setAt pages index element))
+                        (set wrong_order true)
+
+                        (let next_rule (@ rules (toNumber element)))
+                        (if (not (empty? next_rule))
+                            (set rule next_rule))
+                    }
+                    (set remaining (+ 1 remaining)))
+            })
+
+            (set index (- index 1))
+        })
+
+        (if wrong_order
+            {
+                (set reordered_sum (+ reordered_sum (toNumber (@ pages (math:floor (/ (- (len pages) 1) 2))))))
+                (set wrong_order false)
+            }
+            (set middle_sum (+ middle_sum (toNumber (@ pages (math:floor (/ (- (len pages) 1) 2)))))))
+    }))
+
+(print middle_sum " " reordered_sum)
