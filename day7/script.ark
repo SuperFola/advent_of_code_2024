@@ -1,0 +1,51 @@
+(import std.String :split :join)
+(import std.List :map :forEach :any :sum :reduce)
+(import std.Switch)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let equations (map lines (fun (el) {
+    (let sides (split el ": "))
+    (let numbers (split (@ sides 1) " "))
+
+    [(toNumber (head sides)) (map numbers (fun (e) (toNumber e)))] })))
+
+(let tree_search (fun (numbers expected) {
+    (let add_op (fun (T op number) {
+        (mut i 0)
+
+        (while (< i (len T)) {
+            (set T (list:setAt T i
+                (switch op
+                    "+" (+ (@ T i) number)
+                    "*" (* (@ T i) number)
+                    _ (@ T i))))
+            (set i (+ 1 i))
+        })
+
+        T }))
+
+    (mut tree [(head numbers)])
+    (mut i 1)
+    (while (< i (len numbers)) {
+        (let current (add_op tree "+" (@ numbers i)))
+        (set tree (add_op tree "*" (@ numbers i)))
+
+        (concat! tree current)
+
+        (set i (+ 1 i)) })
+
+    (any tree (fun (v) (= v expected))) }))
+
+(print
+    (sum
+        (map equations
+            (fun (equation) {
+                (let expected (head equation))
+                (let numbers (@ equation 1))
+                (let count (len numbers))
+
+                (if (tree_search numbers expected)
+                    expected
+                    0)
+            }))))
