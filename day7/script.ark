@@ -1,6 +1,9 @@
 (import std.String :split :join)
-(import std.List :map :forEach :any :sum :reduce)
+(import std.List :map :forEach :any :sum :filter)
 (import std.Switch)
+(import std.Math :log10)
+
+(let PART_ONE false)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))
@@ -11,40 +14,53 @@
     [(toNumber (head sides)) (map numbers (fun (e) (toNumber e)))] })))
 
 (let tree_search (fun (numbers expected) {
+    (let valid (fun (e) (<= e expected)))
+
     (let add_op (fun (T op number) {
         (mut i 0)
+        (mut out [])
 
         (while (< i (len T)) {
-            (set T (list:setAt T i
+            (let v
                 (switch op
                     "+" (+ (@ T i) number)
                     "*" (* (@ T i) number)
-                    _ (@ T i))))
+                    "||" (+ (* (@ T i) (* 10 (math:floor (log10 number)))) number)
+                    _ (@ T i)))
+            (if (valid v)
+                (append! out v))
             (set i (+ 1 i))
         })
 
-        T }))
+        out }))
 
     (mut tree [(head numbers)])
     (mut i 1)
     (while (< i (len numbers)) {
-        (let current (add_op tree "+" (@ numbers i)))
-        (set tree (add_op tree "*" (@ numbers i)))
+        (let one (add_op tree "+" (@ numbers i)))
+        (let two (add_op tree "*" (@ numbers i)))
 
-        (concat! tree current)
+        (if PART_ONE
+            (set tree (concat one two))
+            {
+                (let cat (add_op tree "||" (@ numbers i)))
+                (concat! tree one two cat)
+            })
 
         (set i (+ 1 i)) })
 
     (any tree (fun (v) (= v expected))) }))
 
+(mut i 0)
 (print
     (sum
         (map equations
             (fun (equation) {
+                (print i)
                 (let expected (head equation))
                 (let numbers (@ equation 1))
-                (let count (len numbers))
 
+                (set i (+ 1 i))
                 (if (tree_search numbers expected)
                     expected
                     0)
