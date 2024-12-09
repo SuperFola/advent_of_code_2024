@@ -1,0 +1,53 @@
+(import std.String :split)
+(import std.List :map :countIf)
+(import std.Math :abs)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let reports (map lines (fun (el) (map (split el " ") (fun (e) (toNumber e))))))
+
+(let safe (countIf
+    reports
+    (fun (report) {
+        (mut direction 0) # -1 decrease, 1 increase, 0 unknown
+        (mut problems 0)
+
+        (mut val (@ report 0))
+        (mut ignore_next false)
+        (mut index 1)
+
+        (while (< index (len report)) {
+            (let current (@ report index))
+            (let old_dir direction)
+
+            (if (< val current)
+                (set direction 1)
+                (set direction -1))
+            (if (and (!= old_dir 0) (!= old_dir direction))
+                {
+                    (set problems (+ 1 problems))
+                    (set ignore_next true)
+                    (set direction old_dir)
+                }
+                {
+                    # else, check increase/decrease
+                    (let diff (abs (- current val)))
+                    (if (or (= 0 diff) (> diff 3))
+                        {
+                            (set problems (+ 1 problems))
+                            (set ignore_next true)
+                        })
+                })
+
+            (if (not ignore_next)
+                {
+                    (set val current)
+                    (set ignore_next false)
+                })
+            (set index (+ 1 index))})
+
+        (<= problems 1)
+    })))
+(print safe)
+
+# higher than 464
