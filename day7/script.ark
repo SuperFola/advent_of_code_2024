@@ -3,7 +3,7 @@
 (import std.Switch)
 (import std.Math :log10)
 
-(let PART_ONE false)
+(mut PART_ONE true)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))
@@ -63,5 +63,12 @@
                 (set i (+ 1 i))
                 (if (tree_search numbers expected)
                     expected
-                    0)
+                    {
+                        (set PART_ONE false)
+                        (let c (tree_search numbers expected))
+                        (set PART_ONE true)
+                        (if c
+                            expected
+                            0)
+                    })
             }))))
