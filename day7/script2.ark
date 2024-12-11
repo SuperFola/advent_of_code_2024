@@ -1,0 +1,38 @@
+(import std.String :split :join)
+(import std.List :map :forEach :any :filter :foldLeft)
+(import std.Switch)
+(import std.Math :log10 :pow)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let equations (map lines (fun (el) {
+    (let sides (split el ": "))
+    (let numbers (split (@ sides 1) " "))
+
+    [(toNumber (head sides)) (map numbers (fun (e) (toNumber e)))] })))
+
+(let concat_num (fun (a b)
+    (toNumber (string:format "{}{}" a b))))
+
+(let recurse (fun (expected acc numbers)
+    (if (empty? numbers)
+        (= acc expected)
+        (or
+            (recurse expected (+ acc (head numbers)) (tail numbers))
+            (recurse expected (* acc (head numbers)) (tail numbers))
+            (recurse expected (concat_num acc (head numbers)) (tail numbers))))))
+
+(foldLeft
+    (map equations
+        (fun (equation) {
+            (let expected (head equation))
+            (let numbers (@ equation 1))
+
+            (if (recurse expected (head numbers) (tail numbers))
+                expected
+                0)
+        }))
+    0
+    (fun (acc r) {
+        (print (+ acc r))
+        (+ acc r) }))

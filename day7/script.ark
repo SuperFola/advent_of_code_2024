@@ -1,9 +1,7 @@
 (import std.String :split :join)
-(import std.List :map :forEach :any :sum :filter)
+(import std.List :map :forEach :any :filter :foldLeft)
 (import std.Switch)
 (import std.Math :log10)
-
-(mut PART_ONE true)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))
@@ -39,36 +37,25 @@
     (while (< i (len numbers)) {
         (let one (add_op tree "+" (@ numbers i)))
         (let two (add_op tree "*" (@ numbers i)))
-
-        (if PART_ONE
-            (set tree (concat one two))
-            {
-                (let cat (add_op tree "||" (@ numbers i)))
-                (concat! tree one two cat)
-            })
+        (set tree (concat one two))
 
         (set i (+ 1 i)) })
 
     (any tree (fun (v) (= v expected))) }))
 
-(mut i 0)
-(print
-    (sum
-        (map equations
-            (fun (equation) {
-                (print i)
-                (let expected (head equation))
-                (let numbers (@ equation 1))
+(foldLeft
+    (map equations
+        (fun (equation) {
+            (let expected (head equation))
+            (let numbers (@ equation 1))
 
-                (set i (+ 1 i))
+            (async (fun ()
                 (if (tree_search numbers expected)
                     expected
-                    {
-                        (set PART_ONE false)
-                        (let c (tree_search numbers expected))
-                        (set PART_ONE true)
-                        (if c
-                            expected
-                            0)
-                    })
-            }))))
+                    0)))
+        }))
+    0
+    (fun (acc thread) {
+        (let res (await thread))
+        (print (+ acc res))
+        (+ acc res) }))
