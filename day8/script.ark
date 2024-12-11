@@ -1,0 +1,79 @@
+(import std.List :foldLeft :flatMap :filter :countIf :forEach :flatten)
+(import std.String :split)
+
+(let file (io:readFile "input.txt"))
+(let lines (split file "\n"))
+(let height (len lines))
+(let width (len (head lines)))
+
+(let freqs (foldLeft
+    (list:sort
+        (flatMap lines
+            (fun (line)
+                (filter line (fun (c) (!= c "."))))))
+    []
+    (fun (acc freq)
+        (if (> (list:find acc freq) -1)
+            acc
+            (append acc freq)))))
+
+(let find_antennas (fun (freq) {
+    (mut out [])
+
+    (mut x 0)
+    (mut y 0)
+    (while (and (< x width) (< y height)) {
+        (if (= (@ (@ lines y) x) freq)
+            (append! out [x y]))
+
+        (set x (+ 1 x))
+        (if (>= x width)
+            {
+                (set x 0)
+                (set y (+ 1 y))
+            })
+    })
+
+    out
+}))
+
+(print freqs)
+
+(mut antinodes (list:fill height (list:fill width false)))
+(let add_antinode (fun (x y)
+    (if (and (>= x 0) (>= y 0)
+             (< x width) (< y height))
+        (@@= antinodes y x true))))
+
+(forEach freqs
+    (fun (f) {
+        (print f)
+        (let antennas (find_antennas f))
+        (let count (len antennas))
+
+        (mut i 0)
+        (while (< i count) {
+            (let first (@ antennas i))
+
+            (mut j (+ 1 i))
+            (while (< j count) {
+                (let second (@ antennas j))
+                (let dx (- (@ second 0) (@ first 0)))
+                (let dy (- (@ second 1) (@ first 1)))
+
+                (if (or (!= 0 dx) (!= 0 dy))
+                    {
+                        (add_antinode (- (@ first 0) dx) (- (@ first 1) dy))
+                        (add_antinode (+ (@ second 0) dx) (+ (@ second 1) dy))
+                    })
+
+                (set j (+ j 1))
+            })
+            (set i (+ i 1))
+        })
+    }))
+
+
+# solution:
+(print (countIf (flatten antinodes) (fun (p) p)))
+
