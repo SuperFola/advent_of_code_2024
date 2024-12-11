@@ -4,37 +4,39 @@
 (let file (io:readFile "input.txt"))
 (let length (len file))
 
-(mut diskmap "")
+(mut diskmap [])
 (mut total_used_blocks 0)
 (mut total_free_blocks 0)
 
 (mut id 0)
 (mut i 0)
 (while (< i length) {
-    (let used_blocks (@ file i))
-    (set total_used_blocks (+ total_used_blocks (toNumber used_blocks)))
-    (set diskmap (+ diskmap (join (list:fill (toNumber used_blocks) (toString id)) "")))
+    (let used_blocks (toNumber (@ file i)))
+    (set total_used_blocks (+ total_used_blocks used_blocks))
+    (concat! diskmap (list:fill used_blocks id))
 
     (let free_blocks (@ file (+ i 1)))
     (if (!= free_blocks "\n")
         {
             (set total_free_blocks (+ total_free_blocks (toNumber free_blocks)))
-            (set diskmap (+ diskmap (join (list:fill (toNumber free_blocks) ".") "")))
+            (concat! diskmap (list:fill (toNumber free_blocks) -1))
         })
 
     (set i (+ i 2))
     (set id (+ id 1))
 })
 
+(print (string:format "Used: {}, free: {}" total_used_blocks total_free_blocks))
+
 (let disk_size (len diskmap))
 (set i (- disk_size 1))
 (mut continue true)
 (while (and continue (> i 0)) {
-    (let free_pos (string:find diskmap "."))
+    (let free_pos (list:find diskmap -1))
     (if (!= -1 free_pos)
         {
             (@= diskmap free_pos (@ diskmap i))
-            (@= diskmap i ".")
+            (@= diskmap i -1)
         })
 
     (set continue (> i total_used_blocks))
@@ -43,9 +45,10 @@
 
 (mut checksum 0)
 (set i 0)
-(while (< i total_used_blocks) {
-    (print checksum)
-    (set checksum (+ checksum (* i (toNumber (@ diskmap i)))))
+(while (< i disk_size) {
+    (let fid (@ diskmap i))
+    (if (!= -1 fid)
+        (set checksum (+ checksum (* i fid))))
     (set i (+ i 1))
 })
 (print checksum)
