@@ -1,0 +1,122 @@
+(import std.String :join)
+(import std.List :forEach :map)
+
+(let file (io:readFile "input.txt"))
+(let length (len file))
+
+(mut diskmap [])
+(mut free_space [])  # [position size]
+
+(mut space_by_size (list:fill 10 0)) # position_of_first - size: 1..9
+(mut saved_first_free (list:fill 9 false))
+
+(mut total_used_blocks 0)
+(mut total_free_blocks 0)
+
+(mut id 0)
+(mut i 0)
+(while (< i length) {
+    (let used_blocks (toNumber (@ file i)))
+    (set total_used_blocks (+ total_used_blocks used_blocks))
+    (concat! diskmap (list:fill used_blocks id))
+
+    (let free_blocks (@ file (+ i 1)))
+    (if (!= free_blocks "\n")
+        {
+            (let free_blocks_num (toNumber free_blocks))
+            (set total_free_blocks (+ total_free_blocks free_blocks_num))
+
+            (if (not (@ saved_first_free (- free_blocks_num 1)))
+                {
+                    (@= saved_first_free (- free_blocks_num 1) true)
+                    (@= space_by_size free_blocks_num (len free_space))
+                })
+
+            (append! free_space [(len diskmap) free_blocks_num])
+            (concat! diskmap (list:fill free_blocks_num -1)) })
+
+    (set i (+ i 2))
+    (set id (+ id 1)) })
+
+(print (string:format "Used: {}, free: {}" total_used_blocks total_free_blocks))
+
+(let disk_size (len diskmap))
+(set i (- disk_size 1))
+(mut previous_id 999999999)
+(while (> i 0) {
+    (mut fid (@ diskmap i))
+    (if (and (!= -1 fid) (< fid previous_id))
+        {
+            (set previous_id fid)
+
+            (print (string:format "position: {}, id: {}" i fid))
+            #(print (join (map diskmap (fun (e) (if (= e -1) "." (toString e)))) ""))
+
+            # 'n' will be the file size that we want to move
+            (mut n 0)
+            (while (= fid (@ diskmap i)) {
+                (set n (+ 1 n))
+                (set i (- i 1)) })
+
+            # find the first free block that can fit our file
+            (mut j (@ space_by_size n))
+            (mut space 0)
+            (mut continue_inner true)
+            (while (and (< j (len free_space)) continue_inner) {
+                (let position (@ (@ free_space j) 0))
+                (let blocks_available (@ (@ free_space j) 1))
+
+                (if (or (>= position i) (>= blocks_available n))
+                    {
+                        (if (= n blocks_available)
+                            (@= space_by_size n j))
+                        (set continue_inner false)
+                        (set space blocks_available)
+                    }
+                    (set j (+ 1 j))) })
+
+            (if (and (>= space n) (< (@ (@ free_space j) 0) i))
+                {
+                    # compute the pos
+                    (let start (@ (@ free_space j) 0))
+
+                    (let old_free (@ (@ free_space j) 1))
+                    # delete space
+                    (if (= old_free n)
+                        (pop! free_space j)
+                        {
+                            (@@= free_space j 0 (+ start n))
+                            (@@= free_space j 1 (- old_free n))
+
+                            # we created a new space of size old_free - n
+                            # that is better placed than the current known one
+                            (if (< j (@ space_by_size (- old_free n)))
+                                (@= space_by_size (- old_free n) j))
+                        })
+
+                    # move files
+                    (mut k start)
+                    (while (< k (+ start n)) {
+                        # move the file to the free space
+                        (@= diskmap k fid)
+                        # delete the file from its current position
+                        (let p (+ i 1 (- k start)))
+                        (@= diskmap p -1)
+
+                        (set k (+ 1 k)) })})}
+        (set i (- i 1)) )})
+
+(print "Checksumming")
+
+(mut checksum 0)
+(set i 0)
+(while (< i disk_size) {
+    (mut fid (@ diskmap i))
+    (if (>= fid 0)
+        (set checksum (+ checksum (* i fid))))
+    (set i (+ i 1)) })
+
+(print checksum)
+
+# too high: 6'554'506'790'925
+# expected: 6'323'761'685'944
