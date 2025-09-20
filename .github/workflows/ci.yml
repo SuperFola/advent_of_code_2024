@@ -1,0 +1,34 @@
+name: "Run AoC challenges"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    name: "AoC ${{ matrix.day }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        day: [day1, day2, day3, day4, day5, day6, day7, day8, day9]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup ArkScript
+        uses: ArkScript-lang/setup-arkscript@master
+        with:
+          os: ubuntu-24.04
+          version: v4.0.0
+          stdlib_update: no
+
+      - name: Run code
+        shell: bash
+        run: |
+          cd ${{ matrix.day }}
+          arkscript script.ark
+          arkscript script2.ark
+

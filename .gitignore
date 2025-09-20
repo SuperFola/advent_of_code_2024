@@ -1,4 +1,6 @@
 __arkscript__/
 *.arkc
 .envrc
+.DS_Store
+
 
