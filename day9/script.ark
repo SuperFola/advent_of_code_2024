@@ -1,5 +1,6 @@
 (import std.String :join)
 (import std.List :forEach)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let length (len file))

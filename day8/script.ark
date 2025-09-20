@@ -1,5 +1,6 @@
 (import std.List :foldLeft :flatMap :filter :countIf :forEach :flatten)
 (import std.String :split)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))

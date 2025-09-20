@@ -1,6 +1,7 @@
 (import std.List :map :forEach :zip)
 (import std.Math :abs)
 (import std.String :split)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))

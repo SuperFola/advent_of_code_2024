@@ -1,6 +1,7 @@
 (import std.String :split :join)
 (import std.List :forEach)
 (import std.Switch:*)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (mut lines (split file "\n"))

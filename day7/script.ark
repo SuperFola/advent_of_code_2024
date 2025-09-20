@@ -2,6 +2,7 @@
 (import std.List :map :forEach :any :filter :foldLeft)
 (import std.Switch)
 (import std.Math :log10)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))

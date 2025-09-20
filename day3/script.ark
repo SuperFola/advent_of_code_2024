@@ -1,6 +1,7 @@
 (import std.List :forEach :takeWhile :dropWhile)
 (import std.String :split :join)
 (import std.Switch:*)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let muls (split file "mul("))

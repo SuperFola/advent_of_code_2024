@@ -1,6 +1,7 @@
 (import std.String :split)
 (import std.List :map :countIf)
 (import std.Math :abs)
+(import std.IO)
 
 (let file (io:readFile "input.txt"))
 (let lines (split file "\n"))
