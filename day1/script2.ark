@@ -1,4 +1,4 @@
-(import std.List :map :forEach :countIf)
+(import std.List :map :forEach :countIf :sort)
 (import std.Math :abs)
 (import std.String :split)
 (import std.IO)
@@ -9,8 +9,8 @@
 (let left (map lists (fun (el) (toNumber (@ el 0)))))
 (let right (map lists (fun (el) (toNumber (@ el 1)))))
 
-(let left_sort (list:sort left))
-(let right_sort (list:sort right))
+(let left_sort (sort left))
+(let right_sort (sort right))
 
 (mut total 0)
 (forEach

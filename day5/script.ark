@@ -1,15 +1,16 @@
 # from https://programming.dev/post/22486116/13749204 because I couldn't figure out how to apply the rules easily
 
-(import std.List :takeWhile :forEach :drop)
+(import std.List :takeWhile :forEach :drop :find :setAt :fill)
 (import std.String :split)
+(import std.Math :floor)
 (import std.IO)
 
 
-($ measure (name code) {
+(macro measure (name code) {
     (mut start (time))
     { code }
     (mut elapsed (- (time) start))
-    (print (string:format "{} {:.3f} seconds" name elapsed))
+    (print (format "{} {:.3f} seconds" name elapsed))
 })
 
 
@@ -20,7 +21,7 @@
 (measure "drop" (let updates (drop lines (+ 1 (len text-rules)))))
 
 (measure "rules" {
-  (mut rules (list:fill 100 []))
+  (mut rules (fill 100 []))
   (forEach
       text-rules
       (fun (rule) {
@@ -50,12 +51,12 @@
 
             (mut remaining 0)
             (while (< remaining index) {
-                (if (!= -1 (list:find rule (@ pages remaining)))
+                (if (!= -1 (find rule (@ pages remaining)))
                     {
                         # re-order the page
                         (let element (@ pages remaining))
-                        (set pages (list:setAt pages remaining (@ pages index)))
-                        (set pages (list:setAt pages index element))
+                        (set pages (setAt pages remaining (@ pages index)))
+                        (set pages (setAt pages index element))
                         (set wrong_order true)
 
                         (let next_rule (@ rules (toNumber element)))
@@ -70,10 +71,10 @@
 
         (if wrong_order
             {
-                (set reordered_sum (+ reordered_sum (toNumber (@ pages (math:floor (/ (- (len pages) 1) 2))))))
+                (set reordered_sum (+ reordered_sum (toNumber (@ pages (floor (/ (- (len pages) 1) 2))))))
                 (set wrong_order false)
             }
-            (set middle_sum (+ middle_sum (toNumber (@ pages (math:floor (/ (- (len pages) 1) 2)))))))
+            (set middle_sum (+ middle_sum (toNumber (@ pages (floor (/ (- (len pages) 1) 2)))))))
     }))
 
 (print middle_sum " " reordered_sum)

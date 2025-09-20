@@ -1,5 +1,5 @@
-(import std.String :split :join)
-(import std.List :forEach)
+(import std.String :split :join :find :setAt)
+(import std.List)
 (import std.Switch:*)
 (import std.IO)
 
@@ -12,7 +12,7 @@
 (mut x nil)
 
 (while (nil? x) {
-    (let pos (string:find (@ lines y) "^"))
+    (let pos (find (@ lines y) "^"))
     (if (!= -1 pos)
         (set x pos)
         (set y (+ y 1))) })
@@ -41,7 +41,7 @@
 (mut continue true)
 (while continue {
     (let line (@ lines y))
-    (set lines (list:setAt lines y (string:setAt line x "X")))
+    (set lines (list:setAt lines y (setAt line x "X")))
 
     (mut nx x)
     (mut ny y)

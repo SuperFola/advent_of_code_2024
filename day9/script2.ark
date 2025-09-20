@@ -1,5 +1,5 @@
 (import std.String :join)
-(import std.List :forEach :map)
+(import std.List :forEach :map :fill :find)
 (import std.IO)
 
 (let file (io:readFile "input.txt"))
@@ -8,8 +8,8 @@
 (mut diskmap [])
 (mut free_space [])  # [position size]
 
-(mut space_by_size (list:fill 10 0)) # position_of_first - size: 1..9
-(mut saved_first_free (list:fill 9 false))
+(mut space_by_size (fill 10 0)) # position_of_first - size: 1..9
+(mut saved_first_free (fill 9 false))
 
 (mut total_used_blocks 0)
 (mut total_free_blocks 0)
@@ -19,7 +19,7 @@
 (while (< i length) {
     (let used_blocks (toNumber (@ file i)))
     (set total_used_blocks (+ total_used_blocks used_blocks))
-    (concat! diskmap (list:fill used_blocks id))
+    (concat! diskmap (fill used_blocks id))
 
     (let free_blocks (@ file (+ i 1)))
     (if (!= free_blocks "\n")
@@ -34,12 +34,12 @@
                 })
 
             (append! free_space [(len diskmap) free_blocks_num])
-            (concat! diskmap (list:fill free_blocks_num -1)) })
+            (concat! diskmap (fill free_blocks_num -1)) })
 
     (set i (+ i 2))
     (set id (+ id 1)) })
 
-(print (string:format "Used: {}, free: {}" total_used_blocks total_free_blocks))
+(print (format "Used: {}, free: {}" total_used_blocks total_free_blocks))
 
 (let disk_size (len diskmap))
 (set i (- disk_size 1))
@@ -50,7 +50,7 @@
         {
             (set previous_id fid)
 
-            (print (string:format "position: {}, id: {}" i fid))
+            (print (format "position: {}, id: {}" i fid))
             #(print (join (map diskmap (fun (e) (if (= e -1) "." (toString e)))) ""))
 
             # 'n' will be the file size that we want to move

@@ -1,5 +1,5 @@
 (import std.List :forEach :takeWhile :dropWhile)
-(import std.String :split :join)
+(import std.String :split :join :ord)
 (import std.Switch:*)
 (import std.IO)
 
@@ -10,7 +10,7 @@
 (mut text "")
 
 (let is_num (fun (c) {
-    (let ord (string:ord c))
+    (let ord (ord c))
     (and (>= ord 48) (<= ord 57)) }))
 
 (forEach

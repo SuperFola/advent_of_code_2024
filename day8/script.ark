@@ -1,4 +1,4 @@
-(import std.List :foldLeft :flatMap :filter :countIf :forEach :flatten)
+(import std.List :foldLeft :flatMap :filter :countIf :forEach :flatten :sort :find :fill)
 (import std.String :split)
 (import std.IO)
 
@@ -8,13 +8,13 @@
 (let width (len (head lines)))
 
 (let freqs (foldLeft
-    (list:sort
+    (sort
         (flatMap lines
             (fun (line)
                 (filter line (fun (c) (!= c "."))))))
     []
     (fun (acc freq)
-        (if (> (list:find acc freq) -1)
+        (if (> (find acc freq) -1)
             acc
             (append acc freq)))))
 
@@ -40,7 +40,7 @@
 
 (print freqs)
 
-(mut antinodes (list:fill height (list:fill width false)))
+(mut antinodes (fill height (fill width false)))
 (let add_antinode (fun (x y)
     (if (and (>= x 0) (>= y 0)
              (< x width) (< y height))

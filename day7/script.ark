@@ -1,7 +1,7 @@
 (import std.String :split :join)
 (import std.List :map :forEach :any :filter :foldLeft)
 (import std.Switch)
-(import std.Math :log10)
+(import std.Math :log10 :floor)
 (import std.IO)
 
 (let file (io:readFile "input.txt"))
@@ -24,7 +24,7 @@
                 (switch op
                     "+" (+ (@ T i) number)
                     "*" (* (@ T i) number)
-                    "||" (+ (* (@ T i) (* 10 (math:floor (log10 number)))) number)
+                    "||" (+ (* (@ T i) (* 10 (floor (log10 number)))) number)
                     _ (@ T i)))
             (if (valid v)
                 (append! out v))

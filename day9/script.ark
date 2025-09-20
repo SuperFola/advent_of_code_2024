@@ -1,5 +1,5 @@
 (import std.String :join)
-(import std.List :forEach)
+(import std.List :forEach :fill :find)
 (import std.IO)
 
 (let file (io:readFile "input.txt"))
@@ -14,26 +14,26 @@
 (while (< i length) {
     (let used_blocks (toNumber (@ file i)))
     (set total_used_blocks (+ total_used_blocks used_blocks))
-    (concat! diskmap (list:fill used_blocks id))
+    (concat! diskmap (fill used_blocks id))
 
     (let free_blocks (@ file (+ i 1)))
     (if (!= free_blocks "\n")
         {
             (set total_free_blocks (+ total_free_blocks (toNumber free_blocks)))
-            (concat! diskmap (list:fill (toNumber free_blocks) -1))
+            (concat! diskmap (fill (toNumber free_blocks) -1))
         })
 
     (set i (+ i 2))
     (set id (+ id 1))
 })
 
-(print (string:format "Used: {}, free: {}" total_used_blocks total_free_blocks))
+(print (format "Used: {}, free: {}" total_used_blocks total_free_blocks))
 
 (let disk_size (len diskmap))
 (set i (- disk_size 1))
 (mut continue true)
 (while (and continue (> i 0)) {
-    (let free_pos (list:find diskmap -1))
+    (let free_pos (find diskmap -1))
     (if (!= -1 free_pos)
         {
             (@= diskmap free_pos (@ diskmap i))
